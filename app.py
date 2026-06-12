@@ -1,6 +1,6 @@
 import streamlit as st
 from ultralytics import YOLO
-from PIL import Image
+from PIL import Image, ImageOps
 
 # ------------------------------------------------------
 # PAGINA-INSTELLINGEN
@@ -368,13 +368,16 @@ with left_col:
     image = None
 
     if uploaded_file:
-        image = Image.open(uploaded_file).convert("RGB")
+    # Corrigeert automatisch iPhone/Android rotatie
+    image = ImageOps.exif_transpose(
+        Image.open(uploaded_file)
+    ).convert("RGB")
 
-        st.image(
-            image,
-            caption="Geüploade afbeelding",
-            width=260
-        )
+    st.image(
+        image,
+        caption="Geüploade afbeelding",
+        width=260
+    )
 
         if st.button("Scan volgende product"):
             reset_uploader()
