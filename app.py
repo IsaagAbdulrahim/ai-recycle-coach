@@ -1,6 +1,8 @@
 import streamlit as st
 from ultralytics import YOLO
 from PIL import Image, ImageOps
+from io import BytesIO
+import hashlib
 
 # ------------------------------------------------------
 # PAGINA-INSTELLINGEN
@@ -161,6 +163,9 @@ if "uploader_key" not in st.session_state:
 if "current_scan_confirmed" not in st.session_state:
     st.session_state.current_scan_confirmed = False
 
+if "current_image_id" not in st.session_state:
+    st.session_state.current_image_id = None
+
 # ------------------------------------------------------
 # FUNCTIES
 # ------------------------------------------------------
@@ -168,6 +173,7 @@ def reset_uploader():
     st.session_state.uploader_key += 1
     st.session_state.last_object = None
     st.session_state.current_scan_confirmed = False
+    st.session_state.current_image_id = None
     st.rerun()
 
 def reset_score():
@@ -175,6 +181,7 @@ def reset_score():
     st.session_state.scan_count = 0
     st.session_state.last_object = None
     st.session_state.current_scan_confirmed = False
+    st.session_state.current_image_id = None
     st.session_state.uploader_key += 1
     st.rerun()
 
@@ -188,7 +195,7 @@ st.markdown(
         font-size: 42px;
         font-weight: 800;
         margin-bottom: 0px;
-        color: #ffffff;
+        color: inherit;
     }
 
     .subtitle {
@@ -243,21 +250,6 @@ st.markdown(
 
     .warning-box * {
         color: #856404 !important;
-    }
-
-    .success-box {
-        padding: 14px;
-        border-radius: 12px;
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724 !important;
-        margin-top: 12px;
-        font-size: 16px;
-        line-height: 1.5;
-    }
-
-    .success-box * {
-        color: #155724 !important;
     }
 
     .info-box {
@@ -353,31 +345,53 @@ with st.sidebar:
 # ------------------------------------------------------
 left_col, right_col = st.columns([1, 2])
 
+uploaded_file = None
+image = None
+
 with left_col:
     st.subheader("1. Upload product")
 
-    uploaded_file = st.file_uploader(
-        "Kies een afbeelding",
-        type=["jpg", "jpeg", "png"],
-        label_visibility="collapsed",
-        key=f"file_uploader_{st.session_state.uploader_key}"
+    upload_method = st.radio(
+        "Kies invoermethode",
+        ["Foto uploaden", "Camera gebruiken"],
+        horizontal=True
     )
+
+    if upload_method == "Foto uploaden":
+        uploaded_file = st.file_uploader(
+            "Kies een afbeelding",
+            type=["jpg", "jpeg", "png"],
+            label_visibility="collapsed",
+            key=f"file_uploader_{st.session_state.uploader_key}"
+        )
+    else:
+        uploaded_file = st.camera_input(
+            "Maak direct een foto",
+            key=f"camera_{st.session_state.uploader_key}"
+        )
 
     st.caption("Tip: gebruik duidelijke foto's van bijvoorbeeld banaan, fles, boek, beker of telefoon.")
 
-    image = None
+    if uploaded_file is not None:
+        file_bytes = uploaded_file.getvalue()
+        image_id = hashlib.md5(file_bytes).hexdigest()
 
-    if uploaded_file:
-    # Corrigeert automatisch iPhone/Android rotatie
-    image = ImageOps.exif_transpose(
-        Image.open(uploaded_file)
-    ).convert("RGB")
+        if st.session_state.current_image_id != image_id:
+            st.session_state.current_image_id = image_id
+            st.session_state.current_scan_confirmed = False
+            st.session_state.last_object = None
 
-    st.image(
-        image,
-        caption="Geüploade afbeelding",
-        width=260
-    )
+        # Belangrijk:
+        # ImageOps.exif_transpose zorgt ervoor dat iPhone/Android foto's goed worden gedraaid.
+        image = ImageOps.exif_transpose(
+            Image.open(BytesIO(file_bytes))
+        ).convert("RGB")
+
+        st.image(
+            image,
+            caption="Geüploade afbeelding",
+            width=260
+        )
 
         if st.button("Scan volgende product"):
             reset_uploader()
@@ -388,7 +402,7 @@ with left_col:
 with right_col:
     st.subheader("2. Resultaat")
 
-    if not uploaded_file:
+    if uploaded_file is None:
         st.info("Upload links een afbeelding om de AI-scan te starten.")
 
         st.markdown(
@@ -457,9 +471,6 @@ with right_col:
                     st.success(f"Scan bevestigd. +{info['score']} duurzaamheidspunten toegevoegd.")
 
                 if variant == "Variant A - tekstueel":
-                    # ------------------------------------------------------
-                    # VARIANT A: TEKSTUEEL
-                    # ------------------------------------------------------
                     st.markdown("### Advies")
 
                     st.markdown(
@@ -486,9 +497,6 @@ with right_col:
                     )
 
                 else:
-                    # ------------------------------------------------------
-                    # VARIANT B: VISUEEL
-                    # ------------------------------------------------------
                     card1, card2, card3 = st.columns(3)
 
                     with card1:
@@ -561,7 +569,7 @@ with right_col:
                     """
                     <div class="info-box">
                         Voor de demo werken vooral deze objecten goed:
-                        banana, apple, orange, bottle, cup, book, cell phone en laptop.
+                        banana, apple, orange, bottle, cup, book, cell phone, laptop, keyboard en mouse.
                     </div>
                     """,
                     unsafe_allow_html=True
