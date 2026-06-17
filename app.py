@@ -266,36 +266,19 @@ def show_score_button(info):
 
 def show_test_feedback(variant):
     st.divider()
-    st.markdown("### Korte testvraag")
+    st.markdown("### Feedback geven")
 
-    st.caption("Help ons verbeteren door deze scan kort te beoordelen.")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        duidelijkheid = st.slider("Duidelijkheid", 1, 5, 3)
-
-    with col2:
-        gemak = st.slider("Gebruiksgemak", 1, 5, 3)
-
-    with col3:
-        aantrekkelijk = st.slider("Aantrekkelijkheid", 1, 5, 3)
-
-    begrip_ai = st.radio(
-        "Was de AI-uitleg begrijpelijk?",
-        ["Ja", "Een beetje", "Nee"],
-        horizontal=True
+    st.write(
+        "Help ons het prototype te verbeteren. "
+        "Vul na het testen kort het feedbackformulier in."
     )
 
-    if st.button("Feedback opslaan"):
-        st.session_state.feedback_saved = True
-        st.success(
-            f"Bedankt! Feedback genoteerd voor {variant}. "
-            f"Duidelijkheid: {duidelijkheid}/5, "
-            f"Gebruiksgemak: {gemak}/5, "
-            f"Aantrekkelijkheid: {aantrekkelijk}/5, "
-            f"AI-uitleg: {begrip_ai}."
-        )
+    st.info(f"Je test nu: {variant}")
+
+    st.link_button(
+        "Feedbackformulier openen",
+        "https://forms.office.com/Pages/ResponsePage.aspx?id=4v4djnqXjEOzXvW22oShdLhlRCWN6UdFiMc7wX7-ls1UQTVEWjNYS1FKTTlWSDNSSjlNVlNNQk0yNy4u"
+    )
 
 # ------------------------------------------------------
 # CSS
