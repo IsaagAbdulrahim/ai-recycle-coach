@@ -4,3 +4,5 @@ pillow
 opencv-python-headless
 torch
 torchvision
+pandas
+google-genai
