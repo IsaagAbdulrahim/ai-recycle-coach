@@ -11,13 +11,7 @@ import pandas as pd
 # ======================================================
 # APP-INSTELLINGEN
 # ======================================================
-# Tijdens de A/B-test laat je dit op True staan.
-# Na de A/B-test zet je dit op False, dan ziet de eindgebruiker geen testvariant meer.
-SHOW_AB_TEST = True
-
-# Welke versie blijft zichtbaar als SHOW_AB_TEST = False?
-# Opties: "Coach" of "Informatief"
-FINAL_VARIANT = "Coach"
+# Eindversie: de A/B-test is afgerond. De app toont alleen de visuele coachvariant.
 GEMINI_MODEL = "gemini-2.5-flash"
 
 st.set_page_config(
@@ -67,7 +61,6 @@ WASTE_DB = {
         "tip": "Haal eventuele stickers of verpakking eraf en gooi alleen het fruitafval bij GFT.",
         "coach": "Goed bezig! Door GFT apart te scheiden help je mee om voedselresten opnieuw te gebruiken.",
         "ai_explanation": "Ik herken dit vooral aan de vorm en kleur.",
-        "score": 10,
         "maps": "GFT afvalbak in de buurt"
     },
     "apple": {
@@ -82,7 +75,6 @@ WASTE_DB = {
         "tip": "Gooi klokhuizen en fruitschillen bij het GFT.",
         "coach": "Mooi! Kleine duurzame keuzes tellen mee als je ze vaker doet.",
         "ai_explanation": "Ik herken dit vooral aan de ronde vorm en kleur.",
-        "score": 10,
         "maps": "GFT afvalbak in de buurt"
     },
     "orange": {
@@ -97,7 +89,6 @@ WASTE_DB = {
         "tip": "Gooi fruitschillen bij het GFT-afval.",
         "coach": "Goed gescheiden! Zo voorkom je dat organisch afval onnodig bij restafval komt.",
         "ai_explanation": "Ik herken dit vooral aan de ronde vorm en oranje kleur.",
-        "score": 10,
         "maps": "GFT afvalbak in de buurt"
     },
     "bottle": {
@@ -112,7 +103,6 @@ WASTE_DB = {
         "tip": "Maak de fles leeg en druk hem plat voordat je hem weggooit.",
         "coach": "Sterk! Lege plastic verpakkingen kunnen beter worden verwerkt als ze in de juiste afvalstroom terechtkomen.",
         "ai_explanation": "Ik herken dit vooral aan de langwerpige vorm en de dop.",
-        "score": 15,
         "maps": "PMD afvalbak in de buurt"
     },
     "cup": {
@@ -127,7 +117,6 @@ WASTE_DB = {
         "tip": "Gebruik liever een herbruikbare beker.",
         "coach": "Let op: bekers zijn soms lastig. Hergebruiken is hier vaak de beste keuze.",
         "ai_explanation": "Ik herken dit vooral aan de ronde opening en bekervorm.",
-        "score": 8,
         "maps": "restafval afvalbak in de buurt"
     },
     "book": {
@@ -142,7 +131,6 @@ WASTE_DB = {
         "tip": "Hergebruik is vaak duurzamer dan direct weggooien.",
         "coach": "Goede keuze! Eerst kijken naar hergebruik is vaak nog beter dan recyclen.",
         "ai_explanation": "Ik herken dit vooral aan de rechthoekige vorm en platte structuur.",
-        "score": 12,
         "maps": "papierbak of kringloopwinkel in de buurt"
     },
     "cell phone": {
@@ -157,7 +145,6 @@ WASTE_DB = {
         "tip": "Gooi oude telefoons nooit bij het restafval.",
         "coach": "Goed dat je dit apart houdt. Elektronica bevat waardevolle én soms schadelijke stoffen.",
         "ai_explanation": "Ik herken dit vooral aan de smalle rechthoekige vorm en het scherm.",
-        "score": 20,
         "maps": "e-waste inzamelpunt in de buurt",
         "travel_tip": "Is het inleverpunt dichtbij? Pak de fiets of ga lopend. Zo blijft je duurzame keuze ook duurzaam onderweg."
     },
@@ -173,7 +160,6 @@ WASTE_DB = {
         "tip": "Verwijder persoonlijke data voordat je een laptop inlevert.",
         "coach": "Goed bezig! Elektronica hoort niet bij normaal huisafval.",
         "ai_explanation": "Ik herken dit vooral aan het scherm, toetsenbord en de hoekige vorm.",
-        "score": 20,
         "maps": "e-waste inzamelpunt in de buurt",
         "travel_tip": "Is het inleverpunt dichtbij? Pak de fiets of ga lopend. Zo blijft je duurzame keuze ook duurzaam onderweg."
     },
@@ -189,7 +175,6 @@ WASTE_DB = {
         "tip": "Lever oude randapparatuur in bij een e-waste punt.",
         "coach": "Goed bezig! Ook kleine elektronica verdient een aparte afvalstroom.",
         "ai_explanation": "Ik herken dit vooral aan de vorm en de herhaling van toetsen.",
-        "score": 15,
         "maps": "e-waste inzamelpunt in de buurt",
         "travel_tip": "Is het inleverpunt dichtbij? Pak de fiets of ga lopend. Zo blijft je duurzame keuze ook duurzaam onderweg."
     },
@@ -205,7 +190,6 @@ WASTE_DB = {
         "tip": "Gooi kleine elektronica niet zomaar in de prullenbak.",
         "coach": "Mooi! Kleine elektronica wordt vaak vergeten, maar hoort niet bij restafval.",
         "ai_explanation": "Ik herken dit vooral aan de ronde vorm en het compacte ontwerp.",
-        "score": 15,
         "maps": "e-waste inzamelpunt in de buurt",
         "travel_tip": "Is het inleverpunt dichtbij? Pak de fiets of ga lopend. Zo blijft je duurzame keuze ook duurzaam onderweg."
     },
@@ -221,7 +205,6 @@ WASTE_DB = {
         "tip": "Controleer eerst of de stoel hergebruikt of gerepareerd kan worden.",
         "coach": "Goed dat je hier extra op let. Bij meubels is hergebruik vaak duurzamer dan direct weggooien.",
         "ai_explanation": "Ik herken dit vooral aan de poten, zitting en rugleuning.",
-        "score": 10,
         "maps": "kringloopwinkel of milieustraat in de buurt",
         "travel_tip": "Is de kringloop of milieustraat dichtbij? Ga lopend, met de fiets of combineer het met een rit die je toch al moest maken."
     },
@@ -237,7 +220,6 @@ WASTE_DB = {
         "tip": "Kijk eerst of iemand anders de tafel nog kan gebruiken.",
         "coach": "Slim dat je dit controleert. Bij meubels is hergebruik meestal de beste duurzame stap.",
         "ai_explanation": "Ik herken dit vooral aan het tafelblad en de poten.",
-        "score": 10,
         "maps": "kringloopwinkel of milieustraat in de buurt",
         "travel_tip": "Is de kringloop of milieustraat dichtbij? Ga lopend, met de fiets of combineer het met een rit die je toch al moest maken."
     },
@@ -253,7 +235,6 @@ WASTE_DB = {
         "tip": "Is het nog bruikbaar? Geef het door of breng het naar de kringloop.",
         "coach": "Goed dat je controleert. Niet elk object past automatisch in een standaard afvalbak.",
         "ai_explanation": "Ik herken dit vooral aan de twee grepen en metalen bladen.",
-        "score": 8,
         "maps": "milieustraat metaal afval in de buurt",
         "travel_tip": "Is de milieustraat dichtbij? Neem de fiets of combineer het met een andere rit."
     },
@@ -269,7 +250,6 @@ WASTE_DB = {
         "tip": "Controleer of het om verpakkingsglas gaat.",
         "coach": "Goed dat je dit controleert. Bij glas is het verschil tussen verpakkingsglas en servies belangrijk.",
         "ai_explanation": "Ik herken dit vooral aan de vorm en het glasachtige uiterlijk.",
-        "score": 8,
         "maps": "glasbak in de buurt"
     },
     "bowl": {
@@ -284,7 +264,6 @@ WASTE_DB = {
         "tip": "Is het nog bruikbaar? Breng het dan naar de kringloop.",
         "coach": "Duurzaam denken is ook kijken of iets opnieuw gebruikt kan worden.",
         "ai_explanation": "Ik herken dit vooral aan de ronde vorm en open bovenkant.",
-        "score": 8,
         "maps": "kringloopwinkel in de buurt"
     }
 }
@@ -300,16 +279,13 @@ EXAMPLES = [
 # ======================================================
 DEFAULTS = {
     "page": "Home",
-    "total_score": 0,
     "scan_count": 0,
     "daily_goal": 3,
     "uploader_key": 0,
     "current_image_id": None,
     "current_scan_confirmed": False,
-    "last_detection": None,
     "scan_log": [],
     "chat_messages": [],
-    "chat_question": "",
 }
 
 for key, value in DEFAULTS.items():
@@ -327,16 +303,13 @@ def reset_current_scan():
     st.session_state.uploader_key += 1
     st.session_state.current_image_id = None
     st.session_state.current_scan_confirmed = False
-    st.session_state.last_detection = None
     st.rerun()
 
 def reset_all():
-    st.session_state.total_score = 0
     st.session_state.scan_count = 0
     st.session_state.uploader_key += 1
     st.session_state.current_image_id = None
     st.session_state.current_scan_confirmed = False
-    st.session_state.last_detection = None
     st.session_state.scan_log = []
     st.session_state.chat_messages = []
     st.rerun()
@@ -434,18 +407,21 @@ def best_detection(detected):
         return None
     return max(detected, key=lambda x: x["confidence"])
 
-def confirm_scan(info, object_name, confidence, variant):
+def confirm_scan(info, confidence):
+    """Telt een scan één keer mee voor het dagdoel en bewaart alleen scaninformatie in de sessie."""
     if st.session_state.current_scan_confirmed:
         return
 
-    st.session_state.total_score += info["score"]
     st.session_state.scan_count += 1
     st.session_state.current_scan_confirmed = True
 
     st.session_state.scan_log.append({
         "tijd": datetime.now().strftime("%H:%M"),
         "product": info["title"],
-        "categorie": info["category"],        "zekerheid": round(confidence * 100, 1),})
+        "categorie": info["category"],
+        "zekerheid": round(confidence * 100, 1),
+    })
+
 
 def scan_log_df():
     visible_columns = ["tijd", "product", "categorie", "zekerheid"]
@@ -469,17 +445,10 @@ def category_df():
     out.columns = ["categorie", "aantal"]
     return out
 
-def score_df():
-    df = scan_log_df()
-    if df.empty:
-        return pd.DataFrame({"categorie": ["Nog geen scans"], "score": [0]})
-    return df.groupby("categorie", as_index=False)["score"].sum()
-
 def ask_recycle_coach(question):
     if gemini_client is None:
         return (
-            "De AI-chatcoach is nog niet verbonden. Controleer of GEMINI_API_KEY goed in "
-            ".streamlit/secrets.toml staat."
+            "De AI-chatcoach is tijdelijk niet beschikbaar."
         )
 
     prompt = f"""
@@ -528,7 +497,7 @@ def ask_recycle_coach(question):
         )
         return response.text
     except Exception as error:
-        return f"De AI-coach kon nu geen antwoord geven. Foutmelding: {error}"
+        return f"De AI-chatcoach is tijdelijk niet beschikbaar. Probeer het later opnieuw."
 
 
 # ======================================================
@@ -541,15 +510,6 @@ st.markdown(
         padding-top: 1.2rem;
         padding-bottom: 2rem;
         max-width: 1180px;
-    }
-
-    section[data-testid="stSidebar"] {
-        background: #111827;
-        border-right: 1px solid #374151;
-    }
-
-    section[data-testid="stSidebar"] * {
-        color: #f9fafb !important;
     }
 
     div[data-testid="column"] {
@@ -570,13 +530,6 @@ st.markdown(
         left: 0.9rem;
     }
 
-    .settings-hint {
-        color: #9ca3af !important;
-        font-size: 13px;
-        margin-top: -6px;
-        margin-bottom: 8px;
-    }
-
     .app-title {
         font-size: 42px;
         font-weight: 950;
@@ -593,30 +546,6 @@ st.markdown(
         color: #9ca3af;
         margin-bottom: 18px;
         max-width: 950px;
-    }
-
-    .top-nav-spacer {
-        height: 8px;
-    }
-
-    .side-title {
-        font-size: 23px;
-        font-weight: 900;
-        margin-bottom: 4px;
-    }
-
-    .side-subtitle {
-        color: #d1d5db !important;
-        font-size: 14px;
-        line-height: 1.45;
-        margin-bottom: 18px;
-    }
-
-    .nav-note {
-        color: #9ca3af !important;
-        font-size: 13px;
-        margin-top: 8px;
-        line-height: 1.45;
     }
 
     .hero {
@@ -867,20 +796,6 @@ st.markdown(
         color: #78350f !important;
     }
 
-    .score-card {
-        padding: 17px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
-        border: 1px solid #c4b5fd;
-        color: #4c1d95 !important;
-        margin-bottom: 14px;
-        overflow-wrap: anywhere;
-    }
-
-    .score-card * {
-        color: #4c1d95 !important;
-    }
-
     .warning-box {
         padding: 14px;
         border-radius: 14px;
@@ -911,21 +826,6 @@ st.markdown(
 
     .info-box * {
         color: #164e63 !important;
-    }
-
-    .privacy-box {
-        padding: 14px;
-        border-radius: 16px;
-        background: #0f172a;
-        border: 1px solid #334155;
-        color: #e5e7eb !important;
-        font-size: 14px;
-        line-height: 1.5;
-        margin-top: 14px;
-    }
-
-    .privacy-box * {
-        color: #e5e7eb !important;
     }
 
     .pill-wrap {
@@ -971,32 +871,6 @@ st.markdown(
         color: #f9fafb !important;
     }
 
-    .chat-user {
-        padding: 14px 16px;
-        border-radius: 18px;
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-        color: #1e3a8a !important;
-        margin-bottom: 10px;
-    }
-
-    .chat-user * {
-        color: #1e3a8a !important;
-    }
-
-    .chat-bot {
-        padding: 16px;
-        border-radius: 18px;
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
-        color: #064e3b !important;
-        margin-bottom: 14px;
-    }
-
-    .chat-bot * {
-        color: #064e3b !important;
-    }
-
     @media screen and (max-width: 900px) {
         .block-container { max-width: 100%; }
         .app-title { font-size: 34px; }
@@ -1013,10 +887,8 @@ st.markdown(
 # ======================================================
 # SIDEBAR INSTELLINGEN + BOVENNAVIGATIE
 # ======================================================
-# Instellingen staan weer gewoon in de sidebar.
-# Deze sidebar kan de gebruiker linksboven open- en dichtklappen.
-
-variant = FINAL_VARIANT
+# In de eindversie staat alleen de visuele coachvariant aan.
+# De A/B-testkeuze en feedbackknop zijn verwijderd.
 
 with st.sidebar:
     st.markdown("## ⚙️ Instellingen")
@@ -1033,19 +905,6 @@ with st.sidebar:
 
     st.progress(progress_value())
     st.caption(progress_text())
-
-    st.divider()
-
-    if SHOW_AB_TEST:
-        st.markdown("### A/B-test")
-        variant = st.radio(
-            "Testversie",
-            ["Informatief", "Coach"],
-            index=1 if FINAL_VARIANT == "Coach" else 0,
-            help="Gebruik dit alleen tijdens de A/B-test."
-        )
-    else:
-        variant = FINAL_VARIANT
 
     st.divider()
 
@@ -1251,8 +1110,7 @@ elif st.session_state.page == "Scannen":
             if st.session_state.current_image_id != image_id:
                 st.session_state.current_image_id = image_id
                 st.session_state.current_scan_confirmed = False
-                st.session_state.last_detection = None
-
+            
             image = ImageOps.exif_transpose(Image.open(BytesIO(file_bytes))).convert("RGB")
             st.image(image, caption="Preview", width=240)
 
@@ -1339,98 +1197,70 @@ elif st.session_state.page == "Scannen":
                             unsafe_allow_html=True
                         )
 
-                    if variant == "Informatief":
+                    st.markdown(
+                        f"""
+                        <div class="scan-result">
+                            <div class="result-icon">{info['icon']}</div>
+                            <div class="result-title">Dit is een {info['name']}</div>
+                            <div class="result-subtitle">
+                                Dit hoort bij <strong>{info['category']}</strong><br>
+                                AI-zekerheid: {percentage}% · {confidence_label(confidence)}
+                            </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+                    st.progress(min(confidence, 1.0))
+
+                    r1, r2, r3 = st.columns(3)
+                    with r1:
                         st.markdown(
                             f"""
-                            <div class="scan-result">
-                                <div class="result-icon">{info['icon']}</div>
-                                <div class="result-title">Waarschijnlijk: {info['title']}</div>
-                                <div class="result-subtitle">AI-zekerheid: {percentage}% · {confidence_label(confidence)}</div>
+                            <div class="product-card equal-card">
+                                <div class="card-number">1</div>
+                                <div class="card-label">Wat is het?</div>
+                                <div class="card-big">{info['icon']} {info['title']}</div>
+                                <div class="card-text">{info['ai_explanation']}</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+                    with r2:
+                        st.markdown(
+                            f"""
+                            <div class="product-card equal-card">
+                                <div class="card-number">2</div>
+                                <div class="card-label">Waar hoort het?</div>
+                                <div class="card-big">{info['category_icon']} {info['bin_text']}</div>
+                                <div class="card-text">{info['where']}</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+                    with r3:
+                        st.markdown(
+                            f"""
+                            <div class="product-card equal-card">
+                                <div class="card-number">3</div>
+                                <div class="card-label">Waarom duurzaam?</div>
+                                <div class="card-big">♻️ Impact</div>
+                                <div class="card-text">{info['impact']}</div>
                             </div>
                             """,
                             unsafe_allow_html=True
                         )
 
-                        st.progress(min(confidence, 1.0))
-
-                        st.markdown(
-                            f"""
-                            <div class="product-card">
-                                <h3>Afvaladvies</h3>
-                                <p><strong>Dit is:</strong> {info['name']}</p>
-                                <p><strong>Dit hoort bij:</strong> {info['category']}</p>
-                                <p><strong>Waar weggooien:</strong> {info['where']}</p>
-                                <p><strong>Waarom:</strong> {info['impact']}</p>
-                                <p><strong>Tip:</strong> {info['tip']}</p>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
-                    else:
-                        st.markdown(
-                            f"""
-                            <div class="scan-result">
-                                <div class="result-icon">{info['icon']}</div>
-                                <div class="result-title">Dit is een {info['name']}</div>
-                                <div class="result-subtitle">
-                                    Dit hoort bij <strong>{info['category']}</strong><br>
-                                    AI-zekerheid: {percentage}% · {confidence_label(confidence)}
-                                </div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
-
-                        st.progress(min(confidence, 1.0))
-
-                        r1, r2, r3 = st.columns(3)
-                        with r1:
-                            st.markdown(
-                                f"""
-                                <div class="product-card equal-card">
-                                    <div class="card-number">1</div>
-                                    <div class="card-label">Wat is het?</div>
-                                    <div class="card-big">{info['icon']} {info['title']}</div>
-                                    <div class="card-text">{info['ai_explanation']}</div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-                        with r2:
-                            st.markdown(
-                                f"""
-                                <div class="product-card equal-card">
-                                    <div class="card-number">2</div>
-                                    <div class="card-label">Waar hoort het?</div>
-                                    <div class="card-big">{info['category_icon']} {info['bin_text']}</div>
-                                    <div class="card-text">{info['where']}</div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-                        with r3:
-                            st.markdown(
-                                f"""
-                                <div class="product-card equal-card">
-                                    <div class="card-number">3</div>
-                                    <div class="card-label">Waarom duurzaam?</div>
-                                    <div class="card-big">♻️ Impact</div>
-                                    <div class="card-text">{info['impact']}</div>
-                                </div>
-                                """,
-                                unsafe_allow_html=True
-                            )
-
-                        st.markdown(
-                            f"""
-                            <div class="coach-message">
-                                <strong>Coach zegt:</strong><br>
-                                {info['coach']}<br><br>
-                                <strong>Volgende stap:</strong> {info['tip']}
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
+                    st.markdown(
+                        f"""
+                        <div class="coach-message">
+                            <strong>Coach zegt:</strong><br>
+                            {info['coach']}<br><br>
+                            <strong>Volgende stap:</strong> {info['tip']}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
 
                     b1, b2 = st.columns([1, 1])
                     with b1:
@@ -1442,7 +1272,7 @@ elif st.session_state.page == "Scannen":
                     with b2:
                         if not st.session_state.current_scan_confirmed:
                             if st.button("Ik heb dit correct weggegooid", type="primary", use_container_width=True):
-                                confirm_scan(info, object_name, confidence, variant)
+                                confirm_scan(info, confidence)
                                 st.rerun()
                         else:
                             st.success("Opgeslagen. Je voortgang is bijgewerkt.")
@@ -1474,11 +1304,6 @@ elif st.session_state.page == "Scannen":
                         </div>
                         """,
                         unsafe_allow_html=True
-                    )
-
-                    st.link_button(
-                        "Feedback geven",
-                        "https://forms.office.com/Pages/ResponsePage.aspx?id=4v4djnqXjEOzXvW22oShdLhlRCWN6UdFiMc7wX7-ls1UQTVEWjNYS1FKTTlWSDNSSjlNVlNNQk0yNy4u"
                     )
 
 
